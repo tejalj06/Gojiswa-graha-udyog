@@ -25,8 +25,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="bg-white text-black"
       >
+        <header className="border-b p-4 font-semibold">
+          Gojiswa Graha Udyog
+        </header>
         {children}
       </body>
     </html>
