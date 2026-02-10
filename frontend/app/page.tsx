@@ -1,14 +1,15 @@
+import ProductCard from "../components/ProductCard";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <main className="p-4">
       <h1 className="text-xl font-bold">
         Gojiswa Graha Udyog
       </h1>
 
-      <p className="mt-2 text-grey-600">
-         Homemade snacks, freshly prepared.
-      </p>
+     <div className="mt-6">
+      <ProductCard name="Chakli" price={120} />
+     </div>
     </main>
   );
 }
