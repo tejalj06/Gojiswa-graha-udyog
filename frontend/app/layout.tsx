@@ -13,9 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className="bg-white text-black"
-      >
+      <body className="bg-white text-black">
         <header className="border-b p-4 font-semibold">
           Gojiswa Graha Udyog
         </header>
