@@ -21,7 +21,11 @@ export default function HomePage() {
       <SearchBar value={search} onChange={setSearch} />
       <div className="mt-6 grid gap-4">
         {filteredMenuItems.map((item) => (
-          <ProductCard key={item.id} name={item.name} price={item.price} />
+          <ProductCard 
+            key={item.id}
+            id={item.id} 
+            name={item.name} 
+            price={item.price} />
         ))}
       </div>
     </main>

@@ -1,4 +1,6 @@
+
 import type { Metadata } from "next";
+import Providers from "../app/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,7 +19,7 @@ export default function RootLayout({
         <header className="border-b p-4 font-semibold">
           Gojiswa Graha Udyog
         </header>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
