@@ -1,6 +1,7 @@
-
 import type { Metadata } from "next";
 import Providers from "../app/providers";
+import Header from "../components/Header";
+import BottomCartBar from "@/components/BottomCartBar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,10 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-white text-black">
-        <header className="border-b p-4 font-semibold">
-          Gojiswa Graha Udyog
-        </header>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          {children}
+          <BottomCartBar />
+        </Providers>
       </body>
     </html>
   );
