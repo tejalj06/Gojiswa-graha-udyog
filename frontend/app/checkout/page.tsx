@@ -14,12 +14,14 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const checkoutSchema = z.object({
-  name: z.string().min(5, "Name must be at least 5 characters"),
-  address: z.string().min(10, "Address must be at least 10 characters"),
+  name: z
+    .string()
+    .min(5, "Name must be at least 5 characters")
+    .regex(/^[a-zA-Z ]+$/, "Name must contain only letters"),
+  address: z.string().trim().min(10, "Address must be at least 10 characters"),
   phone: z
     .string()
-    .min(10, "Phone number must be at least 10 digits")
-    .max(15, "Phone number too long"),
+    .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number"),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
   remarks: z.string().optional(),
 });
@@ -44,7 +46,7 @@ export default function CheckoutPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
   });
@@ -123,12 +125,14 @@ export default function CheckoutPage() {
 
             <button
               type="submit"
-              disabled={totalCount === 0}
+              disabled={totalCount === 0 || isSubmitting}
               className={`w-full rounded-xl py-3 text-sm font-medium text-white ${
-                totalCount === 0 ? "bg-gray-400 cursor-not-allowed" : "bg-black"
+                totalCount === 0 || isSubmitting
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-black"
               }`}
             >
-              Continue to Payment
+              {isSubmitting ? "Processing..." : "Continue to Payment"}
             </button>
           </form>
         </section>
