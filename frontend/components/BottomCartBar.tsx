@@ -6,10 +6,15 @@ import {
   selectCartTotalPrice,
 } from "../store/cart/cartSelectors";
 import { formatINR } from "../utils/money";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 export default function BottomCartBar() {
   const totalCount = useAppSelector(selectCartTotalCount);
   const totalPrice = useAppSelector(selectCartTotalPrice);
+
+  const pathname = usePathname();
+  if (pathname === "/checkout") return null;
 
   if (totalCount === 0) return null;
 
@@ -21,12 +26,12 @@ export default function BottomCartBar() {
           <div className="font-semibold">{formatINR(totalPrice)}</div>
         </div>
 
-        <button
-          type="button"
+        <Link
+          href="/checkout"
           className="rounded-xl bg-black px-5 py-3 text-sm font-medium text-white"
         >
           Checkout
-        </button>
+        </Link>
       </div>
     </div>
   );
