@@ -1,24 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAppSelector } from "../../store/hooks";
-import {
-  selectCartItemsMap,
-  selectCartTotalPrice,
-  selectCartTotalCount,
-} from "../../store/cart/cartSelectors";
+import { selectCartTotalCount } from "../../store/cart/cartSelectors";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import OrderSummary from "../../components/OrderSummary";
 
 const checkoutSchema = z.object({
-  name: z
-    .string()
-    .min(5, "Name must be at least 5 characters")
-    .regex(/^[a-zA-Z ]+$/, "Name must contain only letters"),
-  address: z.string().trim().min(10, "Address must be at least 10 characters"),
+  name: z.string().min(5, "Name must be at least 5 characters"),
+  address: z.string().min(10, "Address must be at least 10 characters"),
   phone: z
     .string()
     .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number"),
@@ -27,10 +20,7 @@ const checkoutSchema = z.object({
 });
 
 export default function CheckoutPage() {
-  const itemsMap = useAppSelector(selectCartItemsMap);
-  const totalPrice = useAppSelector(selectCartTotalPrice);
   const totalCount = useAppSelector(selectCartTotalCount);
-
   const router = useRouter();
 
   useEffect(() => {
@@ -38,8 +28,6 @@ export default function CheckoutPage() {
       router.push("/");
     }
   }, [totalCount, router]);
-
-  const items = useMemo(() => Object.values(itemsMap), [itemsMap]);
 
   type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
@@ -52,7 +40,7 @@ export default function CheckoutPage() {
   });
 
   const onSubmit = (data: CheckoutFormData) => {
-    console.log("Form submitted:", data);
+    console.log("Customer Data:", data);
   };
 
   return (
@@ -139,37 +127,7 @@ export default function CheckoutPage() {
 
         <section className="rounded-2xl border bg-white p-4">
           <h2 className="text-base font-semibold">Order Summary</h2>
-
-          {items.length === 0 ? (
-            <p className="mt-4 text-sm text-gray-600">Your cart is empty.</p>
-          ) : (
-            <>
-              <div className="mt-4 space-y-3">
-                {items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-start justify-between border-b pb-3"
-                  >
-                    <div>
-                      <div className="text-sm font-medium">{item.name}</div>
-                      <div className="text-xs text-gray-600">
-                        ₹{item.price} × {item.quantity}
-                      </div>
-                    </div>
-
-                    <div className="text-sm font-semibold">
-                      ₹{item.price * item.quantity}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 flex items-center justify-between">
-                <div className="text-sm text-gray-600">{totalCount} items</div>
-                <div className="text-base font-bold">₹{totalPrice}</div>
-              </div>
-            </>
-          )}
+          <OrderSummary />
         </section>
       </div>
     </main>
