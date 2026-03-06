@@ -34,15 +34,23 @@ export default function CheckoutPage() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
   });
 
-  const onSubmit = (data: CheckoutFormData) => {
+  const onSubmit = async (data: CheckoutFormData) => {
     console.log("Customer Data:", data);
-  };
 
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    console.log("Submit finished");
+
+    reset();
+
+    router.push("/payment");
+  };
   return (
     <main className="mx-auto max-w-3xl p-4">
       <h1 className="text-xl font-bold">Checkout</h1>
