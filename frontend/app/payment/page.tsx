@@ -1,12 +1,27 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAppDispatch } from "../../store/hooks";
+import { clearCart } from "../../store/cart/cartSlice";
 import OrderSummary from "../../components/OrderSummary";
 
 type PaymentMethod = "upi" | "cod" | null;
 
 export default function PaymentPage() {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+
+  const handlePlaceOrder = () => {
+    if (!selectedMethod) return;
+
+    console.log("Order placed with:", selectedMethod);
+
+    dispatch(clearCart());
+
+    router.push("/success");
+  };
 
   return (
     <main className="mx-auto max-w-3xl p-4">
@@ -80,6 +95,17 @@ export default function PaymentPage() {
               </p>
             </div>
           )}
+
+          <button
+            type="button"
+            disabled={!selectedMethod}
+            onClick={handlePlaceOrder}
+            className={`mt-6 w-full rounded-xl py-3 text-sm font-medium text-white ${
+              !selectedMethod ? "bg-gray-400 cursor-not-allowed" : "bg-black"
+            }`}
+          >
+            Place Order
+          </button>
         </section>
 
         <section className="rounded-2xl border bg-white p-4">
