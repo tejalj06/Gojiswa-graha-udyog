@@ -14,7 +14,9 @@ export default function BottomCartBar() {
   const totalPrice = useAppSelector(selectCartTotalPrice);
 
   const pathname = usePathname();
-  if (pathname === "/checkout") return null;
+  if (pathname === "/checkout" || pathname === "/payment") {
+    return null;
+  }
 
   if (totalCount === 0) return null;
 

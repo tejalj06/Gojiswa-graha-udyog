@@ -3,8 +3,10 @@
 import { useState } from "react";
 import OrderSummary from "../../components/OrderSummary";
 
+type PaymentMethod = "upi" | "cod" | null;
+
 export default function PaymentPage() {
-  const [showUPIQR, setShowUPIQR] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
 
   return (
     <main className="mx-auto max-w-3xl p-4">
@@ -14,6 +16,7 @@ export default function PaymentPage() {
         <section className="rounded-2xl border bg-white p-4">
           <h2 className="text-base font-semibold">Choose Payment Method</h2>
 
+          {/* UPI Option */}
           <div className="mt-4 rounded-xl border p-4">
             <div className="text-sm font-semibold">UPI (Recommended)</div>
             <p className="mt-1 text-xs text-gray-600">
@@ -22,14 +25,35 @@ export default function PaymentPage() {
 
             <button
               type="button"
-              onClick={() => setShowUPIQR(true)}
-              className="mt-4 w-full rounded-xl bg-black py-3 text-sm font-medium text-white"
+              onClick={() => setSelectedMethod("upi")}
+              className={`mt-4 w-full rounded-xl py-3 text-sm font-medium text-white ${
+                selectedMethod === "upi" ? "bg-black" : "bg-gray-700"
+              }`}
             >
               Pay with UPI
             </button>
           </div>
 
-          {showUPIQR && (
+          {/* COD Option */}
+          <div className="mt-4 rounded-xl border p-4">
+            <div className="text-sm font-semibold">Cash on Delivery</div>
+            <p className="mt-1 text-xs text-gray-600">
+              Pay in cash when your order is delivered.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setSelectedMethod("cod")}
+              className={`mt-4 w-full rounded-xl py-3 text-sm font-medium text-white ${
+                selectedMethod === "cod" ? "bg-black" : "bg-gray-700"
+              }`}
+            >
+              Choose Cash on Delivery
+            </button>
+          </div>
+
+          {/* UPI QR Section */}
+          {selectedMethod === "upi" && (
             <div className="mt-6 rounded-xl border p-4">
               <div className="text-sm font-semibold">Scan & Pay</div>
               <p className="mt-1 text-xs text-gray-600">
@@ -41,8 +65,18 @@ export default function PaymentPage() {
               </div>
 
               <p className="mt-3 text-xs text-gray-500">
-                After payment, click “I have paid” (we’ll add confirmation
-                later).
+                After payment, click “I have paid” (confirmation comes later).
+              </p>
+            </div>
+          )}
+
+          {selectedMethod === "cod" && (
+            <div className="mt-6 rounded-xl border p-4">
+              <div className="text-sm font-semibold">
+                Cash on Delivery Selected
+              </div>
+              <p className="mt-2 text-sm text-gray-600">
+                You will pay when your order is delivered to your address.
               </p>
             </div>
           )}
