@@ -16,10 +16,15 @@ export default function PaymentPage() {
   const handlePlaceOrder = () => {
     if (!selectedMethod) return;
 
-    console.log("Order placed with:", selectedMethod);
+    const orderData = {
+      paymentMethod: selectedMethod,
+      date: new Date().toISOString(),
+    };
+
+    // ✅ Save to localStorage
+    localStorage.setItem("latestOrder", JSON.stringify(orderData));
 
     dispatch(clearCart());
-
     router.push("/success");
   };
 
