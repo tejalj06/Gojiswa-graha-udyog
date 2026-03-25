@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "../../store/hooks";
 import { clearCart } from "../../store/cart/cartSlice";
@@ -10,8 +10,13 @@ type PaymentMethod = "upi" | "cod" | null;
 
 export default function PaymentPage() {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
+  const [upiConfirmed, setUpiConfirmed] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    setUpiConfirmed(false);
+  }, [selectedMethod]);
 
   const handlePlaceOrder = () => {
     if (!selectedMethod) return;
@@ -21,7 +26,6 @@ export default function PaymentPage() {
       date: new Date().toISOString(),
     };
 
-    // ✅ Save to localStorage
     localStorage.setItem("latestOrder", JSON.stringify(orderData));
 
     dispatch(clearCart());
@@ -84,9 +88,13 @@ export default function PaymentPage() {
                 UPI QR Code will appear here
               </div>
 
-              <p className="mt-3 text-xs text-gray-500">
-                After payment, click “I have paid” (confirmation comes later).
-              </p>
+              <button
+                type="button"
+                onClick={() => setUpiConfirmed(true)}
+                className="mt-4 w-full rounded-xl bg-green-600 py-3 text-sm font-medium text-white"
+              >
+                I have paid
+              </button>
             </div>
           )}
 
@@ -103,7 +111,9 @@ export default function PaymentPage() {
 
           <button
             type="button"
-            disabled={!selectedMethod}
+            disabled={
+              !selectedMethod || (selectedMethod === "upi" && !upiConfirmed)
+            }
             onClick={handlePlaceOrder}
             className={`mt-6 w-full rounded-xl py-3 text-sm font-medium text-white ${
               !selectedMethod ? "bg-gray-400 cursor-not-allowed" : "bg-black"
@@ -111,6 +121,12 @@ export default function PaymentPage() {
           >
             Place Order
           </button>
+
+          {upiConfirmed && (
+            <p className="mt-2 text-sm text-green-600">
+              Payment confirmed. You can now place your order.
+            </p>
+          )}
         </section>
 
         <section className="rounded-2xl border bg-white p-4">
