@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAppDispatch } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import {
+  selectCartItemsMap,
+  selectCartTotalPrice,
+} from "../../store/cart/cartSelectors";
 import { clearCart } from "../../store/cart/cartSlice";
 import OrderSummary from "../../components/OrderSummary";
 
@@ -11,6 +15,12 @@ type PaymentMethod = "upi" | "cod" | null;
 export default function PaymentPage() {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
   const [upiConfirmed, setUpiConfirmed] = useState(false);
+
+  const itemsMap = useAppSelector(selectCartItemsMap);
+  const totalPrice = useAppSelector(selectCartTotalPrice);
+
+  const items = Object.values(itemsMap);
+
   const router = useRouter();
   const dispatch = useAppDispatch();
 
@@ -18,18 +28,39 @@ export default function PaymentPage() {
     setUpiConfirmed(false);
   }, [selectedMethod]);
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!selectedMethod) return;
 
     const orderData = {
+      items,
+      totalPrice,
       paymentMethod: selectedMethod,
-      date: new Date().toISOString(),
     };
 
-    localStorage.setItem("latestOrder", JSON.stringify(orderData));
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
 
-    dispatch(clearCart());
-    router.push("/success");
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error);
+        return;
+      }
+
+      console.log("Order success:", data);
+
+      dispatch(clearCart());
+
+      router.push("/success");
+    } catch (error) {
+      console.error("Order failed:", error);
+    }
   };
 
   return (
@@ -41,51 +72,33 @@ export default function PaymentPage() {
           <h2 className="text-base font-semibold">Choose Payment Method</h2>
 
           {/* UPI Option */}
-          <div className="mt-4 rounded-xl border p-4">
-            <div className="text-sm font-semibold">UPI (Recommended)</div>
-            <p className="mt-1 text-xs text-gray-600">
-              Pay using any UPI app (Google Pay, PhonePe, Paytm, BHIM).
-            </p>
-
-            <button
-              type="button"
-              onClick={() => setSelectedMethod("upi")}
-              className={`mt-4 w-full rounded-xl py-3 text-sm font-medium text-white ${
-                selectedMethod === "upi" ? "bg-black" : "bg-gray-700"
-              }`}
-            >
-              Pay with UPI
-            </button>
-          </div>
+          <button
+            onClick={() => setSelectedMethod("upi")}
+            className={`mt-4 w-full rounded-xl border p-3 text-left ${
+              selectedMethod === "upi" ? "border-black" : "border-gray-300"
+            }`}
+          >
+            Pay via UPI
+          </button>
 
           {/* COD Option */}
-          <div className="mt-4 rounded-xl border p-4">
-            <div className="text-sm font-semibold">Cash on Delivery</div>
-            <p className="mt-1 text-xs text-gray-600">
-              Pay in cash when your order is delivered.
-            </p>
+          <button
+            onClick={() => setSelectedMethod("cod")}
+            className={`mt-2 w-full rounded-xl border p-3 text-left ${
+              selectedMethod === "cod" ? "border-black" : "border-gray-300"
+            }`}
+          >
+            Cash on Delivery
+          </button>
 
-            <button
-              type="button"
-              onClick={() => setSelectedMethod("cod")}
-              className={`mt-4 w-full rounded-xl py-3 text-sm font-medium text-white ${
-                selectedMethod === "cod" ? "bg-black" : "bg-gray-700"
-              }`}
-            >
-              Choose Cash on Delivery
-            </button>
-          </div>
-
-          {/* UPI QR Section */}
           {selectedMethod === "upi" && (
-            <div className="mt-6 rounded-xl border p-4">
-              <div className="text-sm font-semibold">Scan & Pay</div>
-              <p className="mt-1 text-xs text-gray-600">
-                Scan this QR code using your UPI app.
+            <div className="mt-4">
+              <p className="text-sm text-gray-600">
+                Scan QR and complete payment
               </p>
 
-              <div className="mt-4 flex items-center justify-center rounded-lg bg-gray-100 p-6 text-sm text-gray-600">
-                UPI QR Code will appear here
+              <div className="mt-2 h-40 w-full bg-gray-200 flex items-center justify-center">
+                QR CODE
               </div>
 
               <button
@@ -95,38 +108,36 @@ export default function PaymentPage() {
               >
                 I have paid
               </button>
+
+              {upiConfirmed && (
+                <p className="mt-2 text-sm text-green-600">
+                  Payment confirmed. You can now place your order.
+                </p>
+              )}
             </div>
           )}
 
+          {/* COD Section */}
           {selectedMethod === "cod" && (
-            <div className="mt-6 rounded-xl border p-4">
-              <div className="text-sm font-semibold">
-                Cash on Delivery Selected
-              </div>
-              <p className="mt-2 text-sm text-gray-600">
-                You will pay when your order is delivered to your address.
-              </p>
-            </div>
+            <p className="mt-4 text-sm text-gray-600">
+              Pay in cash at the time of delivery.
+            </p>
           )}
 
           <button
             type="button"
+            onClick={handlePlaceOrder}
             disabled={
               !selectedMethod || (selectedMethod === "upi" && !upiConfirmed)
             }
-            onClick={handlePlaceOrder}
             className={`mt-6 w-full rounded-xl py-3 text-sm font-medium text-white ${
-              !selectedMethod ? "bg-gray-400 cursor-not-allowed" : "bg-black"
+              !selectedMethod || (selectedMethod === "upi" && !upiConfirmed)
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-black"
             }`}
           >
             Place Order
           </button>
-
-          {upiConfirmed && (
-            <p className="mt-2 text-sm text-green-600">
-              Payment confirmed. You can now place your order.
-            </p>
-          )}
         </section>
 
         <section className="rounded-2xl border bg-white p-4">
