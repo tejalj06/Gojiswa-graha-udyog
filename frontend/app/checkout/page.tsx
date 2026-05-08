@@ -45,7 +45,7 @@ export default function CheckoutPage() {
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    console.log("Submit finished");
+    localStorage.setItem("customer", JSON.stringify(data));
 
     reset();
 

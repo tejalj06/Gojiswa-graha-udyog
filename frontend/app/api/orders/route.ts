@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
+import { connectDB } from "@/lib/db";
+import Order from "@/models/Order";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    await connectDB();
 
-    const { items, totalPrice, paymentMethod } = body;
+    const body = await req.json();
+    const { items, totalPrice, paymentMethod, customer } = body;
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
@@ -12,21 +15,21 @@ export async function POST(req: Request) {
 
     if (!paymentMethod) {
       return NextResponse.json(
-        { error: "Payment method is required" },
+        { error: "Payment method required" },
         { status: 400 },
       );
     }
 
-    const order = {
-      id: Date.now(),
+    const order = await Order.create({
       items,
       totalPrice,
       paymentMethod,
+      customer,
       createdAt: new Date().toISOString(),
-    };
+    });
 
     return NextResponse.json({
-      message: "Order placed successfully",
+      message: "Order created successfully",
       order,
     });
   } catch (error) {

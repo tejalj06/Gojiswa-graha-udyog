@@ -13,6 +13,8 @@ import OrderSummary from "../../components/OrderSummary";
 type PaymentMethod = "upi" | "cod" | null;
 
 export default function PaymentPage() {
+  const [customerData, setCustomerData] = useState<any>({});
+
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
   const [upiConfirmed, setUpiConfirmed] = useState(false);
 
@@ -25,6 +27,14 @@ export default function PaymentPage() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    const storedCustomer = localStorage.getItem("customer");
+
+    if (storedCustomer) {
+      setCustomerData(JSON.parse(storedCustomer));
+    }
+  }, []);
+
+  useEffect(() => {
     setUpiConfirmed(false);
   }, [selectedMethod]);
 
@@ -35,6 +45,7 @@ export default function PaymentPage() {
       items,
       totalPrice,
       paymentMethod: selectedMethod,
+      customer: customerData,
     };
 
     try {
@@ -57,7 +68,7 @@ export default function PaymentPage() {
 
       dispatch(clearCart());
 
-      router.push("/success");
+      router.push(`/success?orderId=${data.order._id}`);
     } catch (error) {
       console.error("Order failed:", error);
     }
